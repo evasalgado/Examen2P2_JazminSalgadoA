@@ -673,10 +673,13 @@ public class main extends javax.swing.JFrame implements Serializable {
 
         tb_mod.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {"s", "Advance", "2323", "1"},
+                {"s", "DTM", "2332", "2"},
+                {"s", "Fiberwerks", "4433", "4"},
+                {"s", "Fifteen52", "2345", "6"},
+                {"n", "Origin Lab", "6545", "7"},
+                {"n", "RocketBunny", "4553", "3"},
+                {"s", "Urban Outlaw", "5645", null}
             },
             new String [] {
                 "Tipo", "Marca", "Precio", "Tiempo"
@@ -1304,12 +1307,20 @@ public class main extends javax.swing.JFrame implements Serializable {
     }//GEN-LAST:event_tab_userStateChanged
 
     private void bt_modificarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_modificarMouseClicked
-        // TODO add your handling code here:
+        String tipo = tb_mod.getColumnName(0),
+                marca=tb_mod.getColumnName(1);
+        int precio = tb_mod.getSelectedRow(),
+                tiempo=tb_mod.getSelectedRow();
+        for (int i = 0; i < aj.getListJ().size(); i++) {
+            for (int j = 0; j < aj.getListJ().get(i).getCarros().size(); j++) {
+                aj.getListJ().get(i).getCarros().get(j).getPartesinstaladas().add(new parte_instalada(tipo, marca, precio));
+            }
+        }
     }//GEN-LAST:event_bt_modificarMouseClicked
 
     private void bt_comprarcarroMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_comprarcarroMouseClicked
         pb_buscar.setValue(0);
-        ab = new AdministrarBarra(pb_buscar, 2);
+        ab = new AdministrarBarra(pb_buscar, 5);
         ab.start();
         String item = l_compra.getSelectedValue();
         aj.cargar();
@@ -1328,11 +1339,10 @@ public class main extends javax.swing.JFrame implements Serializable {
                 }
             }
             aj.escribir();
-            ab.stop();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al añadir");
         }
-
+        pb_buscar.setValue(0);
 
     }//GEN-LAST:event_bt_comprarcarroMouseClicked
 
@@ -1341,23 +1351,27 @@ public class main extends javax.swing.JFrame implements Serializable {
     }//GEN-LAST:event_bt_salirActionPerformed
 
     private void l_eliminar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l_eliminar1MouseClicked
-        vender.setValue(0);
-        ab = new AdministrarBarra(vender, 2);
-        String item = l_eliminar1.getSelectedValue();
-        ab.start();
-        aj.cargar();
+        if (l_eliminar1.isSelectionEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione algo");
+        } else {
+            vender.setValue(0);
+            ab = new AdministrarBarra(vender, 7);
+            String item = l_eliminar1.getSelectedValue();
+            ab.start();
+            aj.cargar();
 
-        for (int k = 0; k < aj.getListJ().size(); k++) {
-            for (int i = 0; i < aj.getListJ().get(k).getCarros().size(); i++) {
-                if (aj.getListJ().get(k).getCarros().get(i).equals(item)) {
-                    aj.getListJ().get(k).setSaldo(aj.getListJ().get(k).getCarros().get(i).getPrecio() + aj.getListJ().get(k).getSaldo());
-                    aj.getListJ().get(k).getCarros().remove(i);
+            for (int k = 0; k < aj.getListJ().size(); k++) {
+                for (int i = 0; i < aj.getListJ().get(k).getCarros().size(); i++) {
+                    if (aj.getListJ().get(k).getCarros().get(i).equals(item)) {
+                        aj.getListJ().get(k).setSaldo(aj.getListJ().get(k).getCarros().get(i).getPrecio() + aj.getListJ().get(k).getSaldo());
+                        aj.getListJ().get(k).getCarros().remove(i);
+                    }
                 }
             }
+            aj.escribir();
+            JOptionPane.showMessageDialog(this, "objeto vendido perfectamente");
+            vender.setValue(0);
         }
-        aj.escribir();
-        JOptionPane.showMessageDialog(this, "objeto vendido perfectamente");
-        vender.setValue(0);
     }//GEN-LAST:event_l_eliminar1MouseClicked
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
