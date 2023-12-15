@@ -19,6 +19,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import java.io.Serializable;
 import java.util.Random;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -125,9 +126,10 @@ public class main extends javax.swing.JFrame implements Serializable {
         pb_cargarcompra = new javax.swing.JProgressBar();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tb_mod = new javax.swing.JTable();
         jProgressBar5 = new javax.swing.JProgressBar();
         bt_modificar = new javax.swing.JButton();
+        cb_mod = new javax.swing.JComboBox<>();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         l_eliminar1 = new javax.swing.JList<>();
@@ -669,7 +671,7 @@ public class main extends javax.swing.JFrame implements Serializable {
 
         tab_user.addTab("Comprar carro", jPanel4);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tb_mod.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -680,7 +682,7 @@ public class main extends javax.swing.JFrame implements Serializable {
                 "Tipo", "Marca", "Precio", "Tiempo"
             }
         ));
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane2.setViewportView(tb_mod);
 
         bt_modificar.setText("Agregar Modificacion");
         bt_modificar.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -703,13 +705,18 @@ public class main extends javax.swing.JFrame implements Serializable {
                         .addComponent(jProgressBar5, javax.swing.GroupLayout.PREFERRED_SIZE, 501, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(299, 299, 299)
-                        .addComponent(bt_modificar, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(bt_modificar, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(231, 231, 231)
+                        .addComponent(cb_mod, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(130, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(52, 52, 52)
+                .addGap(18, 18, 18)
+                .addComponent(cb_mod, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jProgressBar5, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1221,9 +1228,10 @@ public class main extends javax.swing.JFrame implements Serializable {
     private void cb_concesionariacompraItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cb_concesionariacompraItemStateChanged
         if (evt.getStateChange() == 1) {
             aco.cargar();
+            ac.cargar();
             DefaultListModel l = (DefaultListModel) l_compra.getModel();
             pos = l_compra.getSelectedIndex();
-            l.addElement(aco.getListC().get(pos).getCarrosventa());
+            l.addElement(ac.getListBroom());
             l_compra.setModel(l);
         }
     }//GEN-LAST:event_cb_concesionariacompraItemStateChanged
@@ -1278,11 +1286,21 @@ public class main extends javax.swing.JFrame implements Serializable {
 
         AdministrarConcesionaria ac = new AdministrarConcesionaria("./concesionarias.cns");
         ac.cargar();
+        aj.cargar();
+        DefaultComboBoxModel cb2 = null;
         DefaultComboBoxModel cb = new DefaultComboBoxModel(ac.getListC().toArray());
+        for (int i = 0; i < aj.getListJ().size(); i++) {
+            cb2 = new DefaultComboBoxModel(aj.getListJ().get(i).getCarros().toArray());
+        }
+
         cb_concesionariacompra.setModel(cb);
         cb_carro1.setModel(cb);
         cb_carro2.setModel(cb);
-        
+        cb_mod.setModel(cb2);
+        DefaultTableModel tb = (DefaultTableModel) tb_mod.getModel();
+        Object things[] = new Object[4];
+
+
     }//GEN-LAST:event_tab_userStateChanged
 
     private void bt_modificarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_modificarMouseClicked
@@ -1295,12 +1313,25 @@ public class main extends javax.swing.JFrame implements Serializable {
         ab.start();
         String item = l_compra.getSelectedValue();
         aj.cargar();
-
         ac.cargar();
-        aj.getListJ().get(pos).getCarros().add(ac.getListBroom().get(pos));
-        aj.escribir();
-        ab.stop();
-        JOptionPane.showMessageDialog(this, "compra hecha perfectamente");
+
+        try {
+            for (int k = 0; k < aj.getListJ().size(); k++) {
+                for (int i = 0; i < ac.getListBroom().size(); i++) {
+                    if (ac.getListBroom().get(i).equals(item)) {
+                        aj.getListJ().get(k).getCarros().add(ac.getListBroom().get(i));
+                        int price = ac.getListBroom().get(i).getPrecio();
+                        ac.getListBroom().remove(i);
+                        aj.getListJ().get(k).setSaldo(aj.getListJ().get(k).getSaldo() - price);
+                    }
+                    JOptionPane.showMessageDialog(this, "compra hecha perfectamente");
+                }
+            }
+            aj.escribir();
+            ab.stop();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al añadir");
+        }
 
 
     }//GEN-LAST:event_bt_comprarcarroMouseClicked
@@ -1316,9 +1347,12 @@ public class main extends javax.swing.JFrame implements Serializable {
         ab.start();
         aj.cargar();
 
-        for (int i = 0; i < aj.getListJ().get(pos).getCarros().size(); i++) {
-            if (aj.getListJ().get(pos).getCarros().get(i).equals(item)) {
-                aj.getListJ().get(pos).getCarros().remove(i);
+        for (int k = 0; k < aj.getListJ().size(); k++) {
+            for (int i = 0; i < aj.getListJ().get(k).getCarros().size(); i++) {
+                if (aj.getListJ().get(k).getCarros().get(i).equals(item)) {
+                    aj.getListJ().get(k).setSaldo(aj.getListJ().get(k).getCarros().get(i).getPrecio() + aj.getListJ().get(k).getSaldo());
+                    aj.getListJ().get(k).getCarros().remove(i);
+                }
             }
         }
         aj.escribir();
@@ -1328,8 +1362,8 @@ public class main extends javax.swing.JFrame implements Serializable {
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
         String c1 = cb_carro1.getSelectedItem().toString(),
-                c2=cb_carro2.getSelectedItem().toString();
-        
+                c2 = cb_carro2.getSelectedItem().toString();
+
     }//GEN-LAST:event_jButton2MouseClicked
 
     /**
@@ -1367,6 +1401,7 @@ public class main extends javax.swing.JFrame implements Serializable {
         });
     }
     int pos;
+
     AdministrarBarra ab;
     AdministrarCarro ac = new AdministrarCarro("./carros.car");
     ;
@@ -1395,6 +1430,7 @@ public class main extends javax.swing.JFrame implements Serializable {
     private javax.swing.JComboBox<String> cb_carro2;
     private javax.swing.JComboBox<String> cb_concesionariacompra;
     private javax.swing.JComboBox<String> cb_marca;
+    private javax.swing.JComboBox<String> cb_mod;
     private javax.swing.JComboBox<String> cb_modelo;
     private javax.swing.JComboBox<String> cb_pais;
     private javax.swing.JButton jButton2;
@@ -1437,7 +1473,6 @@ public class main extends javax.swing.JFrame implements Serializable {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JTable jTable1;
     private javax.swing.JList<String> l_compra;
     private javax.swing.JList<String> l_eliminar1;
     private javax.swing.JProgressBar pb_buscar;
@@ -1455,6 +1490,7 @@ public class main extends javax.swing.JFrame implements Serializable {
     private javax.swing.JRadioButton rb_reconstruido;
     private javax.swing.JTabbedPane tab_admin;
     private javax.swing.JTabbedPane tab_user;
+    private javax.swing.JTable tb_mod;
     private javax.swing.JTextField tf_cantc;
     private javax.swing.JTextField tf_correo;
     private javax.swing.JTextField tf_lc;
